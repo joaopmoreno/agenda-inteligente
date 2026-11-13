@@ -8,7 +8,6 @@ create table if not exists public.profiles (
   id uuid references auth.users(id) on delete cascade primary key,
   name text not null default '',
   timezone text not null default 'America/Sao_Paulo',
-  voice_enabled boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -112,12 +111,11 @@ create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   -- Cria perfil inicial com nome vindo do cadastro (se houver) e fuso horário padrão
-  insert into public.profiles (id, name, timezone, voice_enabled)
+  insert into public.profiles (id, name, timezone)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
-    'America/Sao_Paulo',
-    false
+    'America/Sao_Paulo'
   ) on conflict (id) do nothing;
 
   -- Inicializa as 3 categorias no modo automatico

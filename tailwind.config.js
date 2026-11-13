@@ -13,17 +13,39 @@ const palette = {
 };
 // Fundo da página distinto dos cartões e tons de leitura para superfícies claras.
 const lightOverrides = {
-  bg: { 'slate-50': '#edf2f7', 'brand-600': '#087467', 'brand-700': '#075e55' },
-  text: {
-    'slate-400': '#4e6075', 'slate-500': '#40546a', 'slate-600': '#34485b',
-    'brand-600': '#07675c', 'brand-700': '#06594f', 'rose-500': '#aa2045',
-    'rose-600': '#a31c40', 'emerald-600': '#086344', 'amber-600': '#825005',
+  bg: {
+    'slate-50': '#F3F8FF',
+    'slate-100': '#D6E6FF',
+    'slate-200': '#BFD4FF',
+    'brand-50': '#D6E6FF',
+    'brand-600': '#335B9C',
+    'brand-700': '#274B86',
+    'brand-800': '#203C6B',
+    'indigo-50': '#E9E0FF',
+    'rose-50': '#FFF3FB',
   },
-  border: { 'slate-100': '#cbd5df', 'slate-200': '#acbac9', 'slate-300': '#78899e' },
+  text: {
+    'slate-400': '#4e6075',
+    'slate-500': '#40546a',
+    'slate-600': '#34485b',
+    'brand-600': '#284F88',
+    'brand-700': '#203F70',
+    'rose-500': '#aa2045',
+    'rose-600': '#a31c40',
+    'emerald-600': '#086344',
+    'amber-600': '#825005',
+  },
+  border: {
+    'slate-100': '#D6E6FF',
+    'slate-200': '#BFD4FF',
+    'slate-300': '#748AA8',
+    'brand-100': '#BFD4FF',
+  },
 };
 const dark = {
   bg: {
     white: '#172335',
+    'brand-800': colors.teal[800],
     'brand-600': colors.teal[600],
     'brand-700': colors.teal[700],
     'slate-50': '#101a29',
@@ -100,7 +122,14 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      colors: { brand: colors.teal },
+      colors: {
+        brand: {
+          ...colors.teal,
+          50: 'rgb(var(--brand-tint) / <alpha-value>)',
+          500: 'rgb(var(--brand-accent) / <alpha-value>)',
+          600: 'rgb(var(--brand-stroke) / <alpha-value>)',
+        },
+      },
       backgroundColor: themed('bg'),
       textColor: themed('text'),
       borderColor: themed('border'),
@@ -109,11 +138,22 @@ export default {
   },
   plugins: [
     ({ addBase }) => {
-      const vars = {};
+      const vars = {
+        '--brand-tint': rgb(colors.teal[50]),
+        '--brand-accent': rgb(colors.teal[500]),
+        '--brand-stroke': rgb(colors.teal[600]),
+        '--focus-color': '#5eead4',
+      };
       for (const [group, values] of Object.entries(dark))
         for (const [key, value] of Object.entries(values)) vars[`--${group}-${key}`] = rgb(value);
       addBase({
-        ':root': { colorScheme: 'light' },
+        ':root': {
+          colorScheme: 'light',
+          '--brand-tint': rgb('#D6E6FF'),
+          '--brand-accent': rgb('#466CA8'),
+          '--brand-stroke': rgb('#335B9C'),
+          '--focus-color': '#335B9C',
+        },
         ':root[data-theme="dark"]': { colorScheme: 'dark', ...vars },
         '@media (prefers-color-scheme: dark)': {
           ':root:not([data-theme])': { colorScheme: 'dark', ...vars },
