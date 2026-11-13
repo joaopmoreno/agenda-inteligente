@@ -1,3 +1,4 @@
+import { answerAgendaQuestion } from './agendaQueries';
 import { taskRepository } from '../tasks/repository';
 import { TaskCategory } from '../tasks/types';
 import { isTaskDueSoon, isTaskDueToday, isTaskOverdue } from '../tasks/logic';
@@ -16,7 +17,9 @@ interface GeminiChatParams {
   userId: string;
 }
 
-const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent';
+const primaryModel = 'gemini-3.8-flash';
+const fallbackModel = 'gemini-3.6-flash';
+class GeminiUnavailable extends Error {}
 
 const category = z.enum(['Pessoal', 'Escolar', 'Trabalho']);
 const taskFields = z.object({
@@ -48,10 +51,10 @@ interface Content {
   parts: GeminiPart[];
 }
 
-async function generate(apiKey: string, body: object): Promise<Content> {
+async function generate(model: string, apiKey: string, body: object): Promise<Content> {
   let res: Response;
   try {
-    res = await fetch(endpoint, {
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
       body: JSON.stringify(body),
@@ -66,8 +69,9 @@ async function generate(apiKey: string, body: object): Promise<Content> {
     ) || /api key (not valid|expired)/i.test(data?.error?.message ?? '');
     if (res.status === 401 || invalidKey) throw new Error('O Google recusou a chave. Confira a chave do Gemini nas Configurações.');
     if (res.status === 403) throw new Error('Acesso negado (403). Confira as permissões e restrições da chave no projeto do Google.');
-    if (res.status === 404) throw new Error('Gemini 3.8 Flash indisponível para esta chamada (404). Confira o acesso ao modelo no Google AI Studio.');
+    if (res.status === 404) throw new Error(`Modelo ${model} indisponível para esta chamada (404). Confira o acesso no Google AI Studio.`);
     if (res.status === 429) throw new Error('Limite de uso do Gemini atingido (429). Confira a cota no Google AI Studio.');
+    if (res.status === 503) throw new GeminiUnavailable(`O Google está com o modelo ${model} indisponível (503). As consultas rápidas de prazos continuam disponíveis.`);
     if (res.status >= 500) throw new Error(`Serviço do Gemini temporariamente indisponível (${res.status}). Tente novamente mais tarde.`);
     throw new Error(`O Google recusou a solicitação ao Gemini (HTTP ${res.status}).`);
   }
@@ -115,11 +119,16 @@ export async function sendGeminiChatMessage({
   userTimezone,
   userId,
 }: GeminiChatParams): Promise<{ reply: string; actionExecuted: boolean }> {
+  const now = new Date();
+  const lastMessage = messages.at(-1);
+  if (lastMessage?.role === 'user') {
+    const reply = await answerAgendaQuestion(lastMessage.content, userId, userTimezone, now);
+    if (reply !== null) return { reply, actionExecuted: false };
+  }
   if (!apiKey || !apiKey.trim()) {
     throw new Error('Chave de API do Google Gemini não configurada.');
   }
 
-  const now = new Date();
   const systemInstruction = `Você é o Assistente da Agenda Inteligente, em português do Brasil.
 Seu objetivo é ajudar o usuário a gerenciar suas tarefas (pessoais, escolares e de trabalho) com clareza, pontualidade e gentileza.
 
@@ -238,11 +247,29 @@ Regras Críticas:
   }
 
   const config = { systemInstruction: { parts: [{ text: systemInstruction }] }, tools };
+  let model = primaryModel;
   let actionExecuted = false;
+  async function generateTurn(firstTurn: boolean) {
+    const body = { ...config, contents };
+    try {
+      return await generate(model, apiKey, body);
+    } catch (error) {
+      if (!(error instanceof GeminiUnavailable)) throw error;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      return await generate(model, apiKey, body);
+    } catch (error) {
+      // Assinaturas de ferramentas pertencem ao modelo que iniciou o turno.
+      if (!firstTurn || !(error instanceof GeminiUnavailable)) throw error;
+      model = fallbackModel;
+      return generate(model, apiKey, body);
+    }
+  }
   try {
     // Permite consultar IDs antes de editar, sem repetir chamadas que já alteraram a agenda.
     for (let round = 0; round < 5; round++) {
-      const content = await generate(apiKey, { ...config, contents });
+      const content = await generateTurn(round === 0);
       const calls = content.parts.flatMap(part => part.functionCall ? [part.functionCall] : []);
       if (!calls.length) {
         const reply = content.parts.filter(part => !part.thought).map(part => part.text ?? '').join('').trim();

@@ -1,3 +1,4 @@
+import { upcomingQuestion, overdueQuestion } from '../../lib/ai/agendaQueries';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Sparkles,
@@ -64,8 +65,8 @@ export const ChatDrawer: React.FC = () => {
   };
 
   const quickPrompts = [
-    'O que tenho para fazer nas próximas 48 horas?',
-    'Quais tarefas estão atrasadas?',
+    upcomingQuestion,
+    overdueQuestion,
     `Adicione estudar amanhã às 19h na aba ${activeCategory}`,
   ];
 
