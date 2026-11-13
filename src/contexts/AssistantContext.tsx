@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './AuthContext';
 import { useProfile } from './ProfileContext';
 import { TaskCategory } from '../lib/tasks/types';
+import { sendGeminiChatMessage } from '../lib/ai/gemini';
 import { supabase } from '../lib/supabase/client';
 
 export interface ChatMessageItem {
@@ -36,7 +37,7 @@ interface AssistantContextType {
 const AssistantContext = createContext<AssistantContextType | undefined>(undefined);
 
 export const AssistantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { session } = useAuth();
+  const { user, session } = useAuth();
   const { profile } = useProfile();
   const queryClient = useQueryClient();
 
@@ -58,8 +59,7 @@ export const AssistantProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<TaskCategory>('Pessoal');
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const openAssistant = () => setIsOpen(true);
@@ -95,30 +95,6 @@ export const AssistantProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setIsSpeaking(true);
 
     try {
-      // Tenta chamar a server function de síntese (TTS)
-      if (session?.access_token) {
-        const res = await supabase.functions.invoke('synthesize', {
-          body: { text },
-        });
-
-        if (res.data && res.data instanceof Blob) {
-          const audioUrl = URL.createObjectURL(res.data);
-          const audio = new Audio(audioUrl);
-          currentAudioRef.current = audio;
-          audio.onended = () => {
-            setIsSpeaking(false);
-            URL.revokeObjectURL(audioUrl);
-          };
-          audio.onerror = () => {
-            setIsSpeaking(false);
-            URL.revokeObjectURL(audioUrl);
-          };
-          await audio.play();
-          return;
-        }
-      }
-
-      // Fallback para SpeechSynthesis nativo do navegador caso a function esteja sem chave
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'pt-BR';
@@ -150,50 +126,98 @@ export const AssistantProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setIsLoading(true);
 
     try {
-      if (!session?.access_token) {
+      if (!user?.id) {
         throw new Error('Você precisa estar autenticado para interagir com o assistente.');
       }
 
-      // Monta payload com histórico recente (apenas em memória)
-      const payloadMessages = [...messages, userMsg].map(m => ({
-        role: m.role,
-        content: m.content,
-      }));
+      // Se a chave do Gemini estiver configurada no perfil, usa o Gemini diretamente!
+      if (profile?.gemini_api_key && profile.gemini_api_key.trim()) {
+        const payloadMessages = [...messages, userMsg].map(m => ({
+          role: m.role,
+          content: m.content,
+        }));
 
-      const res = await supabase.functions.invoke('chat', {
-        body: {
+        const result = await sendGeminiChatMessage({
+          apiKey: profile.gemini_api_key,
           messages: payloadMessages,
           activeCategory,
           userTimezone: profile?.timezone || 'America/Sao_Paulo',
+          userId: user.id,
+        });
+
+        const assistantMsg: ChatMessageItem = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: result.reply,
+          timestamp: new Date(),
+          actionExecuted: result.actionExecuted,
+        };
+
+        setMessages(prev => [...prev, assistantMsg]);
+
+        if (result.actionExecuted) {
+          await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        }
+
+        if (profile?.voice_enabled) {
+          speakText(result.reply);
+        }
+        return;
+      }
+
+      // Caso não tenha a chave do Gemini configurada ainda, tenta a Edge Function ou instrui o usuário
+      if (session?.access_token) {
+        const payloadMessages = [...messages, userMsg].map(m => ({
+          role: m.role,
+          content: m.content,
+        }));
+
+        const res = await supabase.functions.invoke('chat', {
+          body: {
+            messages: payloadMessages,
+            activeCategory,
+            userTimezone: profile?.timezone || 'America/Sao_Paulo',
+          },
+        });
+
+        if (!res.error && res.data?.reply) {
+          const reply = res.data.reply;
+          const actionExecuted = Boolean(res.data?.actionExecuted);
+
+          const assistantMsg: ChatMessageItem = {
+            id: `assistant-${Date.now()}`,
+            role: 'assistant',
+            content: reply,
+            timestamp: new Date(),
+            actionExecuted,
+          };
+
+          setMessages(prev => [...prev, assistantMsg]);
+
+          if (actionExecuted) {
+            await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+          }
+
+          if (profile?.voice_enabled) {
+            speakText(reply);
+          }
+          return;
+        }
+      }
+
+      // Mensagem orientando a cadastrar a chave
+      const noKeyMessage =
+        'Para ativar o Assistente de IA, adicione sua chave de API do Google Gemini nas Configurações do site. Ela é gratuita e você pode obter em: https://aistudio.google.com/app/apikey';
+
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `assistant-nokey-${Date.now()}`,
+          role: 'assistant',
+          content: noKeyMessage,
+          timestamp: new Date(),
         },
-      });
-
-      if (res.error) {
-        throw new Error(res.error.message || 'Erro de comunicação com o assistente.');
-      }
-
-      const reply = res.data?.reply || 'Não foi possível processar a resposta.';
-      const actionExecuted = Boolean(res.data?.actionExecuted);
-
-      const assistantMsg: ChatMessageItem = {
-        id: `assistant-${Date.now()}`,
-        role: 'assistant',
-        content: reply,
-        timestamp: new Date(),
-        actionExecuted,
-      };
-
-      setMessages(prev => [...prev, assistantMsg]);
-
-      // Se uma ferramenta alterou o banco, invalida o cache do TanStack Query imediatamente!
-      if (actionExecuted) {
-        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      }
-
-      // Se o usuário ativou a voz, lê a resposta
-      if (profile?.voice_enabled) {
-        speakText(reply);
-      }
+      ]);
     } catch (err: unknown) {
       const errorMsg = (err as Error).message || 'Ocorreu um erro ao falar com o assistente.';
       setError(errorMsg);
@@ -213,62 +237,55 @@ export const AssistantProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const startVoiceInput = async () => {
     setError(null);
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError('Seu navegador não suporta gravação de áudio.');
-      return;
-    }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioChunksRef.current = [];
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
+    // Suporte nativo à Web Speech API (funciona sem precisar de chave externa no Chrome, Edge e celulares)
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
-      mediaRecorder.ondataavailable = event => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
-      mediaRecorder.onstop = async () => {
-        stream.getTracks().forEach(track => track.stop());
-        setIsListening(false);
+        recognition.onstart = () => {
+          setIsListening(true);
+        };
 
-        if (audioChunksRef.current.length === 0) return;
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-
-        try {
-          setIsLoading(true);
-          const formData = new FormData();
-          formData.append('file', audioBlob, 'audio.webm');
-
-          const { data, error } = await supabase.functions.invoke('transcribe', {
-            body: formData,
-          });
-
-          if (error) throw new Error(error.message);
-          if (data?.text) {
-            sendMessage(data.text);
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0]?.[0]?.transcript;
+          if (transcript) {
+            sendMessage(transcript);
           }
-        } catch (sttErr: unknown) {
-          setError(`Erro na transcrição de voz: ${(sttErr as Error).message}`);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+        };
 
-      mediaRecorder.start();
-      setIsListening(true);
-    } catch (micErr: unknown) {
-      setError(`Permissão de microfone negada ou indisponível: ${(micErr as Error).message}`);
-      setIsListening(false);
+        recognition.onerror = (event: any) => {
+          console.warn('Erro de reconhecimento de fala:', event.error);
+          setIsListening(false);
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+        return;
+      } catch (err: any) {
+        console.warn('Falha ao iniciar SpeechRecognition:', err);
+      }
     }
+
+    setError('Seu navegador não suporta reconhecimento de voz direto.');
+    setIsListening(false);
   };
 
   const stopVoiceInput = () => {
-    if (mediaRecorderRef.current && isListening) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
     }
+    setIsListening(false);
   };
 
   return (

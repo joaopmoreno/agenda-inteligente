@@ -20,7 +20,7 @@ import { TaskCard } from './TaskCard';
 
 interface SortableTaskListProps {
   tasks: Task[];
-  isManual: boolean;
+  isManual?: boolean;
   onReorder: (newTasks: Task[]) => void;
   onToggleComplete: (task: Task) => void;
   onEdit: (task: Task) => void;
@@ -29,7 +29,6 @@ interface SortableTaskListProps {
 
 export const SortableTaskList: React.FC<SortableTaskListProps> = ({
   tasks,
-  isManual,
   onReorder,
   onToggleComplete,
   onEdit,

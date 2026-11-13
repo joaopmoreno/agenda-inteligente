@@ -16,7 +16,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../contexts/ProfileContext';
 import { useAssistant } from '../contexts/AssistantContext';
 import { taskRepository } from '../lib/tasks/repository';
-import { Task, NewTaskInput } from '../lib/tasks/types';
+import { NewTaskInput } from '../lib/tasks/types';
 import { isTaskOverdue, isTaskDueSoon, isTaskDueToday } from '../lib/tasks/logic';
 import { StatCard } from '../components/dashboard/StatCard';
 import { TaskModal } from '../components/agenda/TaskModal';

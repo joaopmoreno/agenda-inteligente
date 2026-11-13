@@ -40,6 +40,7 @@ export interface UserProfile {
   name: string;
   timezone: string;
   voice_enabled: boolean;
+  gemini_api_key?: string | null;
   created_at?: string;
   updated_at?: string;
 }
