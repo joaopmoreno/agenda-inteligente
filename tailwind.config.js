@@ -14,15 +14,18 @@ const palette = {
 // Fundo da página distinto dos cartões e tons de leitura para superfícies claras.
 const lightOverrides = {
   bg: {
-    'slate-50': '#F3F8FF',
+    white: '#EAF0F7',
+    'slate-50': '#DDE6F0',
     'slate-100': '#D6E6FF',
     'slate-200': '#BFD4FF',
     'brand-50': '#D6E6FF',
     'brand-600': '#335B9C',
     'brand-700': '#274B86',
     'brand-800': '#203C6B',
-    'indigo-50': '#E9E0FF',
-    'rose-50': '#FFF3FB',
+    'indigo-50': '#E2DCF0',
+    'rose-50': '#F1E5EC',
+    'emerald-50': '#DFEDE6',
+    'amber-50': '#F1EAD9',
   },
   text: {
     'slate-400': '#4e6075',
