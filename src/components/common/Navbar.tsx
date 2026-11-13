@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Calendar, Home, Settings, CalendarDays, LogOut, Menu, X } from 'lucide-react';
+import { Calendar, Home, Settings, CalendarDays, GraduationCap, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../contexts/ProfileContext';
 
@@ -16,6 +16,7 @@ export const Navbar: React.FC = () => {
     { to: '/', label: 'Início', icon: Home },
     { to: '/agenda', label: 'Agenda', icon: Calendar },
     { to: '/calendario', label: 'Calendário', icon: CalendarDays },
+    { to: '/notas', label: 'Notas', icon: GraduationCap },
     { to: '/configuracoes', label: 'Configurações', icon: Settings },
   ];
 
@@ -56,7 +57,7 @@ export const Navbar: React.FC = () => {
 
           {/* Right Actions (Desktop) */}
           {user ? (
-            <div className="order-last lg:ml-auto flex shrink-0 items-center gap-2">
+            <div className="order-last lg:absolute lg:right-0 flex shrink-0 items-center gap-2">
               {/* Perfil & Logout */}
               <div className="flex items-center gap-1 sm:gap-2">
                 <span className="text-xs font-medium text-slate-600 max-w-[48px] min-[375px]:max-w-[72px] sm:max-w-[120px] truncate">
@@ -74,7 +75,7 @@ export const Navbar: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="order-last lg:ml-auto flex shrink-0 items-center gap-2">
+            <div className="order-last lg:absolute lg:right-0 flex shrink-0 items-center gap-2">
               <Link
                 to="/auth"
                 className="px-4 py-2 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors shadow-xs"

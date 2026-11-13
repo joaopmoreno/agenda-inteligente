@@ -8,6 +8,7 @@ import { Navbar } from './components/common/Navbar';
 import { ConfigPendingBanner } from './components/common/ConfigPendingBanner';
 import { CalendarProvider } from './contexts/CalendarContext';
 import { CalendarPage } from './pages/CalendarPage';
+import { GradesPage } from './pages/GradesPage';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AgendaPage } from './pages/AgendaPage';
@@ -79,6 +80,7 @@ export const App: React.FC = () => {
                       }
                     />
 
+                    <Route path="/notas" element={<ProtectedRoute><GradesPage /></ProtectedRoute>} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </main>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { taskRepository } from '../lib/tasks/repository';
 import { UserProfile } from '../lib/tasks/types';
@@ -60,10 +60,15 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     fetchProfile();
   }, [user]);
 
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) return;
-    const updated = await taskRepository.saveProfile(user.id, updates);
-    setProfile(updated);
+    if (!user) throw new Error('Sessão encerrada.');
+    const write = saveQueue.current.then(async () => {
+      const updated = await taskRepository.saveProfile(user.id, updates);
+      setProfile(updated);
+    });
+    saveQueue.current = write.catch(() => {});
+    await write;
   };
 
   return (

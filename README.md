@@ -113,7 +113,7 @@ Para aplicar no seu banco:
 
 Ative a Google Calendar API no Google Cloud. Configure a tela de consentimento e crie um cliente OAuth do tipo **Aplicativo da Web**. Adicione a origem JavaScript do site (para este GitHub Pages, `https://joaopmoreno.github.io`) e, durante o desenvolvimento, a origem local. Se o aplicativo OAuth estiver em teste, inclua as contas de teste.
 
-Para disponibilizar o cliente a todos, configure a variável de repositório `VITE_GOOGLE_CALENDAR_CLIENT_ID` em Settings → Secrets and variables → Actions → Variables e refaça o deploy. Para uso individual, o ID público também pode ser salvo na aba **Calendário**. Não há segredo OAuth no frontend.
+Para disponibilizar o cliente a todos, configure a variável de repositório `VITE_GOOGLE_CALENDAR_CLIENT_ID` em Settings → Secrets and variables → Actions → Variables e refaça o deploy. Para uso individual, o ID público também pode ser salvo em **Configurações → Google Agenda**. Não há segredo OAuth no frontend.
 
 Após autorizar a conta de mesmo e-mail, a sincronização ocorre enquanto o site está aberto, com autorização válida. O calendário principal recebe tarefas com prazo. Os eventos comuns dos últimos 30 dias e próximos 365 dias entram na categoria Pessoal; recorrências são importadas por ocorrência. Excluir em um lado preserva a cópia do outro. Conflitos de edição no mesmo campo priorizam o valor do Google.
 

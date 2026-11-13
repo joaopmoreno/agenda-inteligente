@@ -1,8 +1,11 @@
 import React from 'react';
 import { Settings } from 'lucide-react';
+import { CalendarSettings } from '../components/settings/CalendarSettings';
+import { useProfile } from '../contexts/ProfileContext';
 import { SettingsForm } from '../components/settings/SettingsForm';
 
 export const SettingsPage: React.FC = () => {
+  const {profile}=useProfile();
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div className="flex items-center gap-3">
@@ -14,12 +17,13 @@ export const SettingsPage: React.FC = () => {
             Configurações
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            Ajuste seu perfil, fuso horário e aparência.
+            Suas alterações são salvas automaticamente.
           </p>
         </div>
       </div>
 
       <SettingsForm />
+      {profile && <CalendarSettings />}
     </div>
   );
 };

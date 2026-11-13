@@ -16,6 +16,7 @@ import { useProfile } from '../contexts/ProfileContext';
 import { taskRepository } from '../lib/tasks/repository';
 import { NewTaskInput } from '../lib/tasks/types';
 import { isTaskOverdue, isTaskDueSoon, isTaskDueToday } from '../lib/tasks/logic';
+import { DailySummary } from '../components/dashboard/DailySummary';
 import { StatCard } from '../components/dashboard/StatCard';
 import { TaskModal } from '../components/agenda/TaskModal';
 import { formatFriendlyDate } from '../lib/utils/date';
@@ -112,6 +113,8 @@ export const DashboardPage: React.FC = () => {
           variant="rose"
         />
       </div>
+
+      <DailySummary tasks={tasks} now={now} timezone={timezone} loading={isLoading} failed={!!error}/>
 
       {/* Seção: Tarefas de Hoje */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-5">
