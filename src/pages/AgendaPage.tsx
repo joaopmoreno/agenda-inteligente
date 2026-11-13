@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useAssistant } from '../contexts/AssistantContext';
 import { taskRepository } from '../lib/tasks/repository';
 import { Task, TaskCategory, SortMode, NewTaskInput } from '../lib/tasks/types';
 import { sortTasksAutomatically, sortTasksManually } from '../lib/tasks/logic';
@@ -13,23 +12,12 @@ import { ConfirmDialog } from '../components/common/ConfirmDialog';
 
 export const AgendaPage: React.FC = () => {
   const { user } = useAuth();
-  const { setActiveCategory, toggleAssistant } = useAssistant();
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTabState] = useState<TaskCategory>('Pessoal');
+  const [activeTab, setActiveTab] = useState<TaskCategory>('Pessoal');
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingTask, setDeletingTask] = useState<Task | null>(null);
-
-  // Sincroniza a categoria ativa com o contexto do assistente
-  const setActiveTab = (tab: TaskCategory) => {
-    setActiveTabState(tab);
-    setActiveCategory(tab);
-  };
-
-  useEffect(() => {
-    setActiveCategory(activeTab);
-  }, [activeTab, setActiveCategory]);
 
   // Consulta todas as tarefas do usuário
   const { data: allTasks = [], isLoading: isLoadingTasks, error: tasksError } = useQuery({
@@ -154,16 +142,6 @@ export const AgendaPage: React.FC = () => {
           >
             <Plus className="w-4 h-4" />
             <span>Adicionar Tarefa</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={toggleAssistant}
-            aria-label="Assistente"
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-sm shadow-xs transition-all min-h-[44px]"
-          >
-            <Sparkles className="w-4 h-4 text-brand-300" />
-            <span className="hidden sm:inline">Assistente</span>
           </button>
         </div>
       </div>

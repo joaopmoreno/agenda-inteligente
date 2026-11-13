@@ -8,6 +8,8 @@ import {
   UserProfile,
 } from './types';
 
+const profileColumns = 'id, name, timezone, theme, calendar_client_id, created_at, updated_at';
+
 export interface TaskRepository {
   listTasks(userId: string): Promise<Task[]>;
   listByCategory(userId: string, category: TaskCategory): Promise<Task[]>;
@@ -232,7 +234,7 @@ export class SupabaseTaskRepository implements TaskRepository {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select(profileColumns)
       .eq('id', userId)
       .maybeSingle();
 
@@ -254,8 +256,6 @@ export class SupabaseTaskRepository implements TaskRepository {
     if (profile.calendar_client_id !== undefined) payload.calendar_client_id = profile.calendar_client_id;
     if (profile.theme !== undefined) payload.theme = profile.theme;
     if (profile.timezone !== undefined) payload.timezone = profile.timezone;
-    if (profile.voice_enabled !== undefined) payload.voice_enabled = profile.voice_enabled;
-    if (profile.gemini_api_key !== undefined) payload.gemini_api_key = profile.gemini_api_key?.trim() || null;
 
     const { data, error } = await supabase
       .from('profiles')
@@ -263,12 +263,8 @@ export class SupabaseTaskRepository implements TaskRepository {
         id: userId,
         ...payload,
       })
-      .select()
+      .select(profileColumns)
       .single();
-
-    if (error && error.message.includes('gemini_api_key') && ['PGRST204', '42703'].includes(error.code)) {
-      throw new Error('Falta a coluna da chave Gemini no banco. Execute a migração 20261113_gemini_api_key.sql no Supabase e salve novamente.');
-    }
 
     if (error) {
       throw new Error(`Falha ao salvar configurações do perfil: ${error.message}`);

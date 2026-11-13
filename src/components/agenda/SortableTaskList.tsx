@@ -72,7 +72,7 @@ export const SortableTaskList: React.FC<SortableTaskListProps> = ({
           Nenhuma tarefa nesta categoria ainda.
         </p>
         <p className="text-slate-400 text-xs mt-1">
-          Clique em "Adicionar Tarefa" ou peça para o Assistente de IA criar uma para você.
+          Clique em “Adicionar Tarefa” para criar a primeira tarefa desta categoria.
         </p>
       </div>
     );

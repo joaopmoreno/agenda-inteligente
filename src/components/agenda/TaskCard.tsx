@@ -53,7 +53,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       style={style}
       className={`group bg-white rounded-2xl border p-4 sm:p-5 transition-all shadow-xs hover:shadow-md flex items-start gap-3 sm:gap-4 ${
         isCompleted
-          ? 'border-slate-200 bg-slate-50/60 opacity-75'
+          ? 'border-slate-200 bg-slate-50/60'
           : isOverdue
           ? 'border-rose-200 bg-rose-50/20'
           : 'border-slate-200'
@@ -64,7 +64,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         type="button"
         {...attributes}
         {...listeners}
-        className="text-slate-300 hover:text-slate-600 cursor-grab active:cursor-grabbing p-1 -ml-1 rounded-md touch-none min-h-[36px] min-w-[28px] flex items-center justify-center"
+        className="text-slate-400 hover:text-slate-600 cursor-grab active:cursor-grabbing p-1 -ml-1 rounded-md touch-none min-h-[36px] min-w-[28px] flex items-center justify-center"
         aria-label="Arrastar tarefa para reordenar"
       >
         <GripVertical className="w-4 h-4" />
@@ -145,7 +145,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       </div>
 
       {/* Ações (Editar e Excluir) */}
-      <div className="flex items-center gap-1 flex-shrink-0 self-center opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 flex-shrink-0 self-center">
         <button
           type="button"
           onClick={() => onEdit(task)}

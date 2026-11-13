@@ -6,7 +6,6 @@ import {
   Clock,
   AlertTriangle,
   Plus,
-  Sparkles,
   ArrowRight,
   CheckCircle2,
   Circle,
@@ -14,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../contexts/ProfileContext';
-import { useAssistant } from '../contexts/AssistantContext';
 import { taskRepository } from '../lib/tasks/repository';
 import { NewTaskInput } from '../lib/tasks/types';
 import { isTaskOverdue, isTaskDueSoon, isTaskDueToday } from '../lib/tasks/logic';
@@ -25,7 +23,6 @@ import { formatFriendlyDate } from '../lib/utils/date';
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { toggleAssistant } = useAssistant();
   const queryClient = useQueryClient();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
@@ -88,15 +85,6 @@ export const DashboardPage: React.FC = () => {
             <Plus className="w-4 h-4" />
             <span>Adicionar Tarefa</span>
           </button>
-
-          <button
-            type="button"
-            onClick={toggleAssistant}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-sm shadow-xs transition-all min-h-[44px]"
-          >
-            <Sparkles className="w-4 h-4 text-brand-300" />
-            <span>Assistente</span>
-          </button>
         </div>
       </div>
 
@@ -123,23 +111,6 @@ export const DashboardPage: React.FC = () => {
           icon={AlertTriangle}
           variant="rose"
         />
-      </div>
-
-      {/* Atalho para a Agenda Completa */}
-      <div className="p-4 bg-gradient-to-r from-brand-600 to-teal-700 text-white rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-        <div className="space-y-1">
-          <h2 className="text-base font-semibold">Abra sua Agenda por Categorias</h2>
-          <p className="text-xs text-brand-100">
-            Acesse as abas Pessoal, Escolar e Trabalho com ordenação manual por arraste ou automática.
-          </p>
-        </div>
-        <Link
-          to="/agenda"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white text-brand-700 font-semibold rounded-xl text-xs hover:bg-brand-50 transition-colors shadow-2xs min-h-[38px]"
-        >
-          <span>Abrir Agenda</span>
-          <ArrowRight className="w-4 h-4" />
-        </Link>
       </div>
 
       {/* Seção: Tarefas de Hoje */}
@@ -179,7 +150,7 @@ export const DashboardPage: React.FC = () => {
                   key={task.id}
                   className={`p-4 rounded-xl border transition-all flex items-center justify-between gap-3 ${
                     isCompleted
-                      ? 'bg-slate-50 border-slate-200 opacity-60'
+                      ? 'bg-slate-50 border-slate-200'
                       : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
                   }`}
                 >

@@ -11,9 +11,21 @@ const palette = {
   teal: colors.teal,
   indigo: colors.indigo,
 };
+// Fundo da página distinto dos cartões e tons de leitura para superfícies claras.
+const lightOverrides = {
+  bg: { 'slate-50': '#edf2f7', 'brand-600': '#087467', 'brand-700': '#075e55' },
+  text: {
+    'slate-400': '#4e6075', 'slate-500': '#40546a', 'slate-600': '#34485b',
+    'brand-600': '#07675c', 'brand-700': '#06594f', 'rose-500': '#aa2045',
+    'rose-600': '#a31c40', 'emerald-600': '#086344', 'amber-600': '#825005',
+  },
+  border: { 'slate-100': '#cbd5df', 'slate-200': '#acbac9', 'slate-300': '#78899e' },
+};
 const dark = {
   bg: {
     white: '#172335',
+    'brand-600': colors.teal[600],
+    'brand-700': colors.teal[700],
     'slate-50': '#101a29',
     'slate-100': '#223248',
     'slate-200': '#314258',
@@ -78,7 +90,7 @@ function themed(group) {
   return Object.fromEntries(
     Object.keys(dark[group]).map((key) => {
       const [color, shade] = key.split('-');
-      const light = shade ? palette[color][shade] : palette[color];
+      const light = lightOverrides[group]?.[key] ?? (shade ? palette[color][shade] : palette[color]);
       return [key, `rgb(var(--${group}-${key}, ${rgb(light)}) / <alpha-value>)`];
     })
   );

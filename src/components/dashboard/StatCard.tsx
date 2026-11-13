@@ -19,10 +19,10 @@ export const StatCard: React.FC<StatCardProps> = ({
   onClick,
 }) => {
   const variantStyles = {
-    default: 'bg-white border-slate-200 text-slate-800 icon-bg:bg-slate-100 icon-text:text-slate-600',
-    amber: 'bg-amber-50/70 border-amber-200 text-amber-950 icon-bg:bg-amber-100 icon-text:text-amber-700',
-    rose: 'bg-rose-50/70 border-rose-200 text-rose-950 icon-bg:bg-rose-100 icon-text:text-rose-700',
-    emerald: 'bg-emerald-50/70 border-emerald-200 text-emerald-950 icon-bg:bg-emerald-100 icon-text:text-emerald-700',
+    default: 'bg-white border-slate-200 text-slate-800',
+    amber: 'bg-amber-50/70 border-amber-200 text-amber-950',
+    rose: 'bg-rose-50/70 border-rose-200 text-rose-950',
+    emerald: 'bg-emerald-50/70 border-emerald-200 text-emerald-950',
   };
 
   const iconVariants = {
@@ -42,7 +42,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wider">
           {title}
         </span>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${iconVariants[variant]}`}>

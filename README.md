@@ -107,8 +107,7 @@ Para aplicar no seu banco:
 1. Abra o painel do Supabase ou Lovable Cloud.
 2. Acesse a aba **SQL Editor**.
 3. Em um banco novo, execute `supabase/migrations/20261112_init.sql` para criar as tabelas.
-4. Execute `supabase/migrations/20261113_gemini_api_key.sql` para habilitar a chave por perfil. Em um banco que já tem as tabelas, execute apenas esta migração.
-5. Execute também as migrações seguintes em ordem de nome. Em instalações existentes, aplique apenas as pendentes.
+4. Execute as migrações seguintes em ordem de nome. Em instalações existentes, aplique apenas as pendentes.
 
 ### Integração com o Google Agenda
 
@@ -119,7 +118,7 @@ Para disponibilizar o cliente a todos, configure a variável de repositório `VI
 Após autorizar a conta de mesmo e-mail, a sincronização ocorre enquanto o site está aberto, com autorização válida. O calendário principal recebe tarefas com prazo. Os eventos comuns dos últimos 30 dias e próximos 365 dias entram na categoria Pessoal; recorrências são importadas por ocorrência. Excluir em um lado preserva a cópia do outro. Conflitos de edição no mesmo campo priorizam o valor do Google.
 
 ### Tabelas Criadas:
-1. **`profiles`**: Perfil do usuário, fuso horário e preferências de voz.
+1. **`profiles`**: Perfil do usuário, fuso horário, aparência e conexão com o calendário.
 2. **`tasks`**: Tarefas categorizadas, com prazos, status e ordenação.
 3. **`category_settings`**: Armazena o modo Automático / Manual para cada aba.
 

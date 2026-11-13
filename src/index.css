@@ -8,6 +8,10 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  input::placeholder, textarea::placeholder {
+    @apply text-slate-400 opacity-100;
+  }
+
   /* Garante touch targets confortáveis em celulares */
   button, a, input, select, textarea {
     @apply touch-manipulation;
@@ -26,28 +30,11 @@
   }
 }
 
-@keyframes slideLeft {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
 .animate-fade-in {
   animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-slide-left {
-  animation: slideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Ocultar barra de rolagem horizontal mantendo navegação por toque */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid theme('colors.teal.700');
+  outline-offset: 2px;
 }
