@@ -1,14 +1,15 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { AssistantProvider } from './contexts/AssistantContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Navbar } from './components/common/Navbar';
 import { ConfigPendingBanner } from './components/common/ConfigPendingBanner';
 import { ChatDrawer } from './components/assistant/ChatDrawer';
-import { AssistantFAB } from './components/assistant/AssistantFAB';
+import { CalendarProvider } from './contexts/CalendarContext';
+import { CalendarPage } from './pages/CalendarPage';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AgendaPage } from './pages/AgendaPage';
@@ -24,58 +25,72 @@ const queryClient = new QueryClient({
   },
 });
 
+function AccountCalendar({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  return <CalendarProvider key={user?.id || 'guest'}>{children}</CalendarProvider>;
+}
+
 export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ProfileProvider>
-          <AssistantProvider>
-            <BrowserRouter>
-              <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans selection:bg-brand-500 selection:text-white">
-                <ConfigPendingBanner />
-                <Navbar />
+          <AccountCalendar>
+            <AssistantProvider>
+              <BrowserRouter basename={import.meta.env.BASE_URL}>
+                <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans selection:bg-brand-500 selection:text-white">
+                  <ConfigPendingBanner />
+                  <Navbar />
 
-                <main className="flex-1 pb-16">
-                  <Routes>
-                    <Route path="/auth" element={<AuthPage />} />
+                  <main className="flex-1 pb-16">
+                    <Routes>
+                      <Route path="/auth" element={<AuthPage />} />
 
-                    <Route
-                      path="/"
-                      element={
-                        <ProtectedRoute>
-                          <DashboardPage />
-                        </ProtectedRoute>
-                      }
-                    />
+                      <Route
+                        path="/"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardPage />
+                          </ProtectedRoute>
+                        }
+                      />
 
-                    <Route
-                      path="/agenda"
-                      element={
-                        <ProtectedRoute>
-                          <AgendaPage />
-                        </ProtectedRoute>
-                      }
-                    />
+                      <Route
+                        path="/agenda"
+                        element={
+                          <ProtectedRoute>
+                            <AgendaPage />
+                          </ProtectedRoute>
+                        }
+                      />
 
-                    <Route
-                      path="/configuracoes"
-                      element={
-                        <ProtectedRoute>
-                          <SettingsPage />
-                        </ProtectedRoute>
-                      }
-                    />
+                      <Route
+                        path="/configuracoes"
+                        element={
+                          <ProtectedRoute>
+                            <SettingsPage />
+                          </ProtectedRoute>
+                        }
+                      />
 
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </main>
+                      <Route
+                        path="/calendario"
+                        element={
+                          <ProtectedRoute>
+                            <CalendarPage />
+                          </ProtectedRoute>
+                        }
+                      />
 
-                {/* Assistente de IA Flutuante e Lateral */}
-                <ChatDrawer />
-                <AssistantFAB />
-              </div>
-            </BrowserRouter>
-          </AssistantProvider>
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </main>
+
+                  <ChatDrawer />
+                </div>
+              </BrowserRouter>
+            </AssistantProvider>
+          </AccountCalendar>
         </ProfileProvider>
       </AuthProvider>
     </QueryClientProvider>

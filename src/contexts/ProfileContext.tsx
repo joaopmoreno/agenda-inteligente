@@ -17,6 +17,18 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  useEffect(() => {
+    const preference = profile?.id === user?.id ? profile?.theme : 'system';
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => {
+      document.documentElement.dataset.theme = !preference || preference === 'system'
+        ? (media.matches ? 'dark' : 'light') : preference;
+    };
+    apply();
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, [profile?.theme, profile?.id, user?.id]);
+
   const fetchProfile = async () => {
     if (!user) {
       setProfile(null);

@@ -47,7 +47,7 @@ export function isTaskDueToday(
   referenceDate: Date = new Date(),
   timezone: string = 'America/Sao_Paulo'
 ): boolean {
-  if (!task.due_at) return false;
+  if (!task.due_at || isTaskOverdue(task, referenceDate)) return false;
 
   const dueDate = new Date(task.due_at);
   if (isNaN(dueDate.getTime())) return false;

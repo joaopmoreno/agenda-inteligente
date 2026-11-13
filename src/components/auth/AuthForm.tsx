@@ -62,7 +62,7 @@ export const AuthForm: React.FC = () => {
         </h1>
         <p className="text-sm text-slate-500 mt-1">
           {isSignUp
-            ? 'Comece a organizar suas tarefas com clareza e IA'
+            ? 'Comece a organizar suas tarefas por categoria'
             : 'Organize suas tarefas pessoais, escolares e de trabalho'}
         </p>
       </div>

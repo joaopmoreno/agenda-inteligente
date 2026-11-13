@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -55,7 +55,13 @@ export const DashboardPage: React.FC = () => {
     },
   });
 
-  const now = new Date();
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const refresh = () => setNow(new Date());
+    const timer = window.setInterval(refresh, 30000);
+    window.addEventListener('focus', refresh);
+    return () => { clearInterval(timer); window.removeEventListener('focus', refresh); };
+  }, []);
 
   // Filtragem estrita usando as regras de negócio puras
   const overdueTasks = tasks.filter(t => isTaskOverdue(t, now));
@@ -71,9 +77,6 @@ export const DashboardPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Olá, {profile?.name || user?.email?.split('@')[0]}!
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Aqui está o resumo da sua agenda para hoje no fuso <span className="font-medium text-slate-700">{timezone}</span>.
-          </p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -92,7 +95,7 @@ export const DashboardPage: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-sm shadow-xs transition-all min-h-[44px]"
           >
             <Sparkles className="w-4 h-4 text-brand-300" />
-            <span>Assistente IA</span>
+            <span>Assistente</span>
           </button>
         </div>
       </div>
@@ -100,17 +103,17 @@ export const DashboardPage: React.FC = () => {
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
+          title="Tarefas"
+          count={dueSoonTasks.length}
+          description="Com prazo nas próximas 48 horas"
+          icon={Clock}
+          variant="emerald"
+        />
+        <StatCard
           title="Tarefas de Hoje"
           count={todayTasks.length}
           description={`${pendingTodayTasks.length} pendentes`}
           icon={Calendar}
-          variant="emerald"
-        />
-        <StatCard
-          title="Próximas 48 Horas"
-          count={dueSoonTasks.length}
-          description="Prazos iminentes"
-          icon={Clock}
           variant="amber"
         />
         <StatCard
@@ -118,7 +121,7 @@ export const DashboardPage: React.FC = () => {
           count={overdueTasks.length}
           description={overdueTasks.length > 0 ? 'Exige atenção' : 'Tudo em dia'}
           icon={AlertTriangle}
-          variant={overdueTasks.length > 0 ? 'rose' : 'default'}
+          variant="rose"
         />
       </div>
 
@@ -139,61 +142,11 @@ export const DashboardPage: React.FC = () => {
         </Link>
       </div>
 
-      {/* Seção: Tarefas Atrasadas (quando houver) */}
-      {overdueTasks.length > 0 && (
-        <div className="bg-rose-50/50 border border-rose-200/80 rounded-3xl p-6 space-y-4">
-          <div className="flex items-center gap-2 text-rose-800 font-bold text-base">
-            <AlertTriangle className="w-5 h-5 text-rose-600" />
-            <h2>Tarefas Atrasadas ({overdueTasks.length})</h2>
-          </div>
-          <div className="space-y-2.5">
-            {overdueTasks.map(task => (
-              <div
-                key={task.id}
-                className="bg-white p-4 rounded-xl border border-rose-200 flex items-center justify-between gap-3 shadow-2xs"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      toggleCompleteMutation.mutate({
-                        taskId: task.id,
-                        completed: task.status !== 'concluida',
-                      })
-                    }
-                    className="text-slate-400 hover:text-brand-600"
-                  >
-                    <Circle className="w-5 h-5" />
-                  </button>
-                  <div className="min-w-0">
-                    <span className="text-sm font-semibold text-slate-800 truncate block">
-                      {task.title}
-                    </span>
-                    <span className="text-xs text-rose-600 font-medium">
-                      Prazo venceu em {formatFriendlyDate(task.due_at)} ({task.category})
-                    </span>
-                  </div>
-                </div>
-                <Link
-                  to="/agenda"
-                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 whitespace-nowrap"
-                >
-                  Ver na Agenda
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Seção: Tarefas de Hoje */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Tarefas de Hoje</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Itens programados para vencer no dia de hoje ({timezone})
-            </p>
           </div>
           <Link
             to="/agenda"
@@ -272,6 +225,53 @@ export const DashboardPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Seção: Tarefas Atrasadas (quando houver) */}
+      {overdueTasks.length > 0 && (
+        <div className="bg-rose-50/50 border-l-4 border-l-red-600 border border-rose-200/80 rounded-3xl p-6 space-y-4">
+          <div className="flex items-center gap-2 text-rose-800 font-bold text-base">
+            <AlertTriangle className="w-5 h-5 text-rose-600" />
+            <h2>Tarefas Atrasadas ({overdueTasks.length})</h2>
+          </div>
+          <div className="space-y-2.5">
+            {overdueTasks.map(task => (
+              <div
+                key={task.id}
+                className="bg-white p-4 rounded-xl border border-rose-200 border-l-4 border-l-red-600 flex items-center justify-between gap-3 shadow-2xs"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleCompleteMutation.mutate({
+                        taskId: task.id,
+                        completed: task.status !== 'concluida',
+                      })
+                    }
+                    className="text-slate-400 hover:text-brand-600"
+                  >
+                    <Circle className="w-5 h-5" />
+                  </button>
+                  <div className="min-w-0">
+                    <span className="text-sm font-semibold text-slate-800 truncate block">
+                      {task.title}
+                    </span>
+                    <span className="text-xs text-rose-600 font-medium">
+                      Prazo venceu em {formatFriendlyDate(task.due_at)} ({task.category})
+                    </span>
+                  </div>
+                </div>
+                <Link
+                  to="/agenda"
+                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 whitespace-nowrap"
+                >
+                  Ver na Agenda
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Modal de Criação de Tarefa */}
       <TaskModal

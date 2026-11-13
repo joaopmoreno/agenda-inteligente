@@ -41,6 +41,8 @@ jobs:
 
       - name: Compilar Aplicação (Build)
         env:
+          GITHUB_PAGES_BASE: /agenda-inteligente/
+          VITE_GOOGLE_CALENDAR_CLIENT_ID: ${{ vars.VITE_GOOGLE_CALENDAR_CLIENT_ID }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build

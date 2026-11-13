@@ -4,34 +4,26 @@ import {
   Calendar,
   Home,
   Settings,
-  Sparkles,
+  CalendarDays,
   LogOut,
   Menu,
   X,
-  Volume2,
-  VolumeX,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../contexts/ProfileContext';
-import { useAssistant } from '../../contexts/AssistantContext';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
-  const { profile, updateProfile } = useProfile();
-  const { toggleAssistant } = useAssistant();
+  const { profile } = useProfile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
-  const toggleVoicePreference = async () => {
-    if (!profile) return;
-    await updateProfile({ voice_enabled: !profile.voice_enabled });
-  };
-
   const navLinks = [
     { to: '/', label: 'Início', icon: Home },
     { to: '/agenda', label: 'Agenda', icon: Calendar },
+    { to: '/calendario', label: 'Calendário', icon: CalendarDays },
     { to: '/configuracoes', label: 'Configurações', icon: Settings },
   ];
 
@@ -73,37 +65,6 @@ export const Navbar: React.FC = () => {
           {/* Right Actions (Desktop) */}
           {user ? (
             <div className="hidden md:flex items-center gap-3">
-              {/* Botão de voz rápida */}
-              <button
-                type="button"
-                onClick={toggleVoicePreference}
-                title={profile?.voice_enabled ? 'Voz ativada (clique para desativar)' : 'Voz desativada (clique para ativar)'}
-                className={`p-2 rounded-lg text-sm transition-colors border ${
-                  profile?.voice_enabled
-                    ? 'bg-brand-50 text-brand-700 border-brand-200'
-                    : 'text-slate-500 border-slate-200 hover:bg-slate-50'
-                }`}
-                aria-label="Alternar voz do assistente"
-              >
-                {profile?.voice_enabled ? (
-                  <Volume2 className="w-4 h-4" />
-                ) : (
-                  <VolumeX className="w-4 h-4" />
-                )}
-              </button>
-
-              {/* Botão Assistente IA */}
-              <button
-                type="button"
-                onClick={toggleAssistant}
-                className="flex items-center gap-2 px-3.5 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors shadow-xs"
-              >
-                <Sparkles className="w-4 h-4 text-brand-300" />
-                <span>Assistente</span>
-              </button>
-
-              <div className="h-6 w-px bg-slate-200" />
-
               {/* Perfil & Logout */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-slate-600 max-w-[120px] truncate">
@@ -133,16 +94,6 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-2">
-            {user && (
-              <button
-                type="button"
-                onClick={toggleAssistant}
-                className="p-2 bg-brand-50 text-brand-700 rounded-lg"
-                aria-label="Abrir assistente"
-              >
-                <Sparkles className="w-5 h-5" />
-              </button>
-            )}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -178,21 +129,6 @@ export const Navbar: React.FC = () => {
                   {label}
                 </Link>
               ))}
-
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between px-3 py-2">
-                <span className="text-sm text-slate-700">Leitura de Voz da IA</span>
-                <button
-                  type="button"
-                  onClick={toggleVoicePreference}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border min-h-[44px] ${
-                    profile?.voice_enabled
-                      ? 'bg-brand-50 text-brand-700 border-brand-200'
-                      : 'text-slate-600 border-slate-200'
-                  }`}
-                >
-                  {profile?.voice_enabled ? 'Ativada' : 'Desativada'}
-                </button>
-              </div>
 
               <div className="pt-2">
                 <button

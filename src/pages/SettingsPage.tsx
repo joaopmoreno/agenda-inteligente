@@ -14,7 +14,7 @@ export const SettingsPage: React.FC = () => {
             Configurações
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            Ajuste seu perfil, fuso horário e preferências do assistente de voz.
+            Ajuste seu perfil, fuso horário e aparência.
           </p>
         </div>
       </div>

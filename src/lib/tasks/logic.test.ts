@@ -180,3 +180,13 @@ describe('Ordenação Manual de Tarefas', () => {
     expect(sorted.map(t => t.id)).toEqual(['t-b', 't-c', 't-a']);
   });
 });
+
+it('exclui pendências vencidas hoje da contagem de hoje, inclusive logo após o prazo', () => {
+  const deadline = '2026-11-12T14:00:00.000Z';
+  const task = createMockTask({due_at:deadline});
+  const now = new Date(Date.parse(deadline)+1);
+  expect(isTaskOverdue(task,now)).toBe(true);
+  expect(isTaskDueToday(task,now,'America/Sao_Paulo')).toBe(false);
+  expect(isTaskDueSoon(task,now)).toBe(false);
+  expect(isTaskDueToday(task,new Date(deadline),'America/Sao_Paulo')).toBe(true);
+});

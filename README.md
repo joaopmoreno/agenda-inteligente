@@ -1,6 +1,6 @@
 # Agenda Inteligente 📅✨
 
-Aplicativo web responsivo e moderno, desenvolvido em português do Brasil, para gerenciar tarefas **Pessoais**, **Escolar** e de **Trabalho**, com suporte a **Assistente de IA com Tools em tempo real**, **Entrada e Saída por Voz**, e **Ordenação Manual e Automática por Arraste (@dnd-kit)**.
+Aplicativo web responsivo e moderno, desenvolvido em português do Brasil, para gerenciar tarefas **Pessoais**, **Escolar** e de **Trabalho**, com calendário, temas claro e escuro e ordenação manual ou automática.
 
 ---
 
@@ -11,7 +11,6 @@ O projeto está totalmente preparado com **GitHub Actions** e **scripts de rotea
 A arquitetura na nuvem funciona assim:
 - **Frontend (Interface)**: Hospedado no **GitHub Pages** com deploy automático via GitHub Actions.
 - **Banco de Dados & Autenticação**: Hospedado no **Lovable Cloud** ou **Supabase** (PostgreSQL na nuvem com RLS).
-- **Assistente de IA & Voz**: Supabase Edge Functions na nuvem.
 
 ### Passo a Passo para Colocar Online no GitHub:
 
@@ -66,7 +65,6 @@ Pronto! Seu site estará 100% online, seguro e com banco de dados em nuvem.
 - **Gerenciamento de Estado**: TanStack Query (React Query) para sincronização e invalidação imediata sem uso de `localStorage`/`IndexedDB` para dados de negócio.
 - **Arraste e Solte**: `@dnd-kit/core` e `@dnd-kit/sortable` com sensores de ponteiro e toque adaptados para telas móveis e desktop.
 - **Backend & Autenticação**: Lovable Cloud / Supabase (PostgreSQL, Row Level Security, Auth com E-mail/Senha e Google OAuth).
-- **Server Functions & IA**: Edge Functions com Deno / TypeScript, Lovable AI Gateway (ou OpenAI GPT-4o-mini / Whisper / TTS) e validação de ferramentas com `Zod`.
 - **Testes**: Vitest cobrindo 100% da lógica de prazos, atrasos e ordenações.
 
 ---
@@ -110,7 +108,15 @@ Para aplicar no seu banco:
 2. Acesse a aba **SQL Editor**.
 3. Em um banco novo, execute `supabase/migrations/20261112_init.sql` para criar as tabelas.
 4. Execute `supabase/migrations/20261113_gemini_api_key.sql` para habilitar a chave por perfil. Em um banco que já tem as tabelas, execute apenas esta migração.
-5. Em **Configurações** da agenda, salve a chave do Google AI Studio. O chatbot usará o Gemini 3.8 Flash. Recarregue a página e pergunte “O que tenho para fazer nas próximas 48 horas?”.
+5. Execute também as migrações seguintes em ordem de nome. Em instalações existentes, aplique apenas as pendentes.
+
+### Integração com o Google Agenda
+
+Ative a Google Calendar API no Google Cloud. Configure a tela de consentimento e crie um cliente OAuth do tipo **Aplicativo da Web**. Adicione a origem JavaScript do site (para este GitHub Pages, `https://joaopmoreno.github.io`) e, durante o desenvolvimento, a origem local. Se o aplicativo OAuth estiver em teste, inclua as contas de teste.
+
+Para disponibilizar o cliente a todos, configure a variável de repositório `VITE_GOOGLE_CALENDAR_CLIENT_ID` em Settings → Secrets and variables → Actions → Variables e refaça o deploy. Para uso individual, o ID público também pode ser salvo na aba **Calendário**. Não há segredo OAuth no frontend.
+
+Após autorizar a conta de mesmo e-mail, a sincronização ocorre enquanto o site está aberto, com autorização válida. O calendário principal recebe tarefas com prazo. Os eventos comuns dos últimos 30 dias e próximos 365 dias entram na categoria Pessoal; recorrências são importadas por ocorrência. Excluir em um lado preserva a cópia do outro. Conflitos de edição no mesmo campo priorizam o valor do Google.
 
 ### Tabelas Criadas:
 1. **`profiles`**: Perfil do usuário, fuso horário e preferências de voz.

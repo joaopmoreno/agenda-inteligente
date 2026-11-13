@@ -159,10 +159,11 @@ export const AgendaPage: React.FC = () => {
           <button
             type="button"
             onClick={toggleAssistant}
+            aria-label="Assistente"
             className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-sm shadow-xs transition-all min-h-[44px]"
           >
             <Sparkles className="w-4 h-4 text-brand-300" />
-            <span className="hidden sm:inline">Assistente IA</span>
+            <span className="hidden sm:inline">Assistente</span>
           </button>
         </div>
       </div>

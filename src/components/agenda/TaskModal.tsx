@@ -60,7 +60,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       await onSave({
         title: title.trim(),
         category,
-        description: description.trim() || undefined,
+        description: description.trim(),
         due_at,
         status,
       });

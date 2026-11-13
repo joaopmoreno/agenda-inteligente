@@ -5,7 +5,7 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Permite rodar em subpastas como https://usuario.github.io/repositorio/
+  base: process.env.GITHUB_PAGES_BASE || '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

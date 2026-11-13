@@ -35,11 +35,15 @@ export interface TaskUpdateInput {
   sort_order?: number;
 }
 
+export type Theme = 'system' | 'light' | 'dark';
+
 export interface UserProfile {
   id: string;
   name: string;
   timezone: string;
   voice_enabled: boolean;
+  theme?: Theme;
+  calendar_client_id?: string | null;
   gemini_api_key?: string | null;
   created_at?: string;
   updated_at?: string;

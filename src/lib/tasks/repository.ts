@@ -251,6 +251,8 @@ export class SupabaseTaskRepository implements TaskRepository {
     };
 
     if (profile.name !== undefined) payload.name = profile.name.trim();
+    if (profile.calendar_client_id !== undefined) payload.calendar_client_id = profile.calendar_client_id;
+    if (profile.theme !== undefined) payload.theme = profile.theme;
     if (profile.timezone !== undefined) payload.timezone = profile.timezone;
     if (profile.voice_enabled !== undefined) payload.voice_enabled = profile.voice_enabled;
     if (profile.gemini_api_key !== undefined) payload.gemini_api_key = profile.gemini_api_key?.trim() || null;

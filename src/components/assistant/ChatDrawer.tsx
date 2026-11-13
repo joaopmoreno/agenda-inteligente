@@ -86,13 +86,8 @@ export const ChatDrawer: React.FC = () => {
             </div>
             <div>
               <h2 id="assistant-title" className="text-base font-bold text-slate-900">
-                Assistente de IA
+                Assistente
               </h2>
-              <div className="flex items-center gap-2 text-2xs text-slate-500">
-                <span>Contexto: Aba {activeCategory}</span>
-                <span>•</span>
-                <span className="text-amber-600 font-medium">Memória temporária</span>
-              </div>
             </div>
           </div>
 
@@ -134,11 +129,6 @@ export const ChatDrawer: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-        </div>
-
-        {/* Aviso de Memória Temporária */}
-        <div className="px-4 py-2 bg-slate-100/60 border-b border-slate-200/50 text-2xs text-slate-500 flex items-center justify-between">
-          <span>Esta conversa fica apenas na memória ativa da página e não é salva no banco.</span>
         </div>
 
         {/* Mensagens */}
