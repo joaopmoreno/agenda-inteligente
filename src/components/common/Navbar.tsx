@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-      <div className="w-full px-3 sm:px-4 lg:px-6">
+      <div className="w-full px-3 sm:px-4 lg:px-3">
         <div className="flex items-center justify-between gap-1 sm:gap-3 h-16 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
           {/* Logo */}
           <Link
@@ -56,7 +56,7 @@ export const Navbar: React.FC = () => {
 
           {/* Right Actions (Desktop) */}
           {user ? (
-            <div className="order-last lg:col-start-3 flex shrink-0 items-center gap-2">
+            <div className="order-last lg:col-start-3 lg:justify-self-end flex shrink-0 items-center gap-2">
               {/* Perfil & Logout */}
               <div className="flex items-center gap-1 sm:gap-2">
                 <span className="text-xs font-medium text-slate-600 max-w-[48px] min-[375px]:max-w-[72px] sm:max-w-[120px] truncate">
@@ -74,7 +74,7 @@ export const Navbar: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="order-last lg:col-start-3 flex shrink-0 items-center gap-2">
+            <div className="order-last lg:col-start-3 lg:justify-self-end flex shrink-0 items-center gap-2">
               <Link
                 to="/auth"
                 className="px-4 py-2 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors shadow-xs"
