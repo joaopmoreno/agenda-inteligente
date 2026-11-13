@@ -44,9 +44,9 @@ export const SettingsForm: React.FC = () => {
         name: name.trim(),
         timezone,
         voice_enabled: voiceEnabled,
-        gemini_api_key: geminiApiKey.trim() || null,
+        ...(geminiApiKey.trim() !== (profile?.gemini_api_key || '') && { gemini_api_key: geminiApiKey.trim() || null }),
       });
-      setFeedback({ type: 'success', text: 'Preferências e chave da IA salvas com sucesso no banco de dados!' });
+      setFeedback({ type: 'success', text: 'Configurações salvas no banco de dados.' });
     } catch (err: unknown) {
       setFeedback({
         type: 'error',
@@ -104,7 +104,7 @@ export const SettingsForm: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
             <Sparkles className="w-4 h-4 text-brand-600" />
-            <span>Chave de API do Google Gemini (Assistente de IA)</span>
+            <span>Chave de API do Gemini 3.8 Flash</span>
           </div>
           <a
             href="https://aistudio.google.com/app/apikey"
@@ -130,7 +130,7 @@ export const SettingsForm: React.FC = () => {
             type={showApiKey ? 'text' : 'password'}
             value={geminiApiKey}
             onChange={e => setGeminiApiKey(e.target.value)}
-            placeholder="AIzaSy..."
+            placeholder="Chave do Google AI Studio"
             className="w-full pl-10 pr-12 py-2.5 bg-white border border-brand-300 rounded-xl text-sm font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors"
           />
           <button

@@ -255,7 +255,7 @@ export class SupabaseTaskRepository implements TaskRepository {
     if (profile.voice_enabled !== undefined) payload.voice_enabled = profile.voice_enabled;
     if (profile.gemini_api_key !== undefined) payload.gemini_api_key = profile.gemini_api_key?.trim() || null;
 
-    let { data, error } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .upsert({
         id: userId,
@@ -264,22 +264,8 @@ export class SupabaseTaskRepository implements TaskRepository {
       .select()
       .single();
 
-    if (error && error.message.includes('gemini_api_key')) {
-      // Caso a coluna ainda não tenha sido adicionada no SQL do Supabase
-      delete payload.gemini_api_key;
-      const retry = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          ...payload,
-        })
-        .select()
-        .single();
-
-      if (retry.error) {
-        throw new Error(`Falha ao salvar configurações do perfil: ${retry.error.message}`);
-      }
-      return { ...(retry.data as UserProfile), gemini_api_key: profile.gemini_api_key || null };
+    if (error && error.message.includes('gemini_api_key') && ['PGRST204', '42703'].includes(error.code)) {
+      throw new Error('Falta a coluna da chave Gemini no banco. Execute a migração 20261113_gemini_api_key.sql no Supabase e salve novamente.');
     }
 
     if (error) {

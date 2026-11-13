@@ -108,7 +108,9 @@ O arquivo com a migração inicial completa encontra-se em:
 Para aplicar no seu banco:
 1. Abra o painel do Supabase ou Lovable Cloud.
 2. Acesse a aba **SQL Editor**.
-3. Copie o conteúdo de `supabase/migrations/20261112_init.sql` e execute o script.
+3. Em um banco novo, execute `supabase/migrations/20261112_init.sql` para criar as tabelas.
+4. Execute `supabase/migrations/20261113_gemini_api_key.sql` para habilitar a chave por perfil. Em um banco que já tem as tabelas, execute apenas esta migração.
+5. Em **Configurações** da agenda, salve a chave do Google AI Studio. O chatbot usará o Gemini 3.8 Flash. Recarregue a página e pergunte “O que tenho para fazer nas próximas 48 horas?”.
 
 ### Tabelas Criadas:
 1. **`profiles`**: Perfil do usuário, fuso horário e preferências de voz.

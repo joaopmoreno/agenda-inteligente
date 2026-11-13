@@ -221,15 +221,6 @@ export const AssistantProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch (err: unknown) {
       const errorMsg = (err as Error).message || 'Ocorreu um erro ao falar com o assistente.';
       setError(errorMsg);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `error-${Date.now()}`,
-          role: 'system',
-          content: `Atenção: ${errorMsg}`,
-          timestamp: new Date(),
-        },
-      ]);
     } finally {
       setIsLoading(false);
     }
